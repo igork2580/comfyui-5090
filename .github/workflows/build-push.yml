@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'Dockerfile'
+      - 'custom_nodes.txt'
       - 'extra_model_paths.yaml'
       - 'scripts/**'
   workflow_dispatch:  # Manual trigger

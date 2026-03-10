@@ -1,23 +1,22 @@
 # ComfyUI RTX 5090 (Blackwell) Docker Template
 
-Production-ready ComfyUI image optimized for RTX 5090 with NVFP4 quantization support.
+Production-ready ComfyUI image optimized for RTX 5090, built on somb1's pre-tested base image.
 
 ## Stack
 
 | Component | Version | Why |
 |---|---|---|
-| CUDA | 13.0 | Required for NVFP4 (2-3x speedup on Blackwell) |
-| Python | 3.12 | Via deadsnakes PPA on Ubuntu 22.04 |
-| PyTorch | Nightly cu130 | Only nightly supports sm_120 (Blackwell) |
-| Base image | `devel` | Includes gcc + nvcc for compiling SageAttention and custom node C extensions |
+| Base image | `sombi/comfyui:base-torch2.8.0-cu128` | Pre-built with CUDA 12.8, PyTorch 2.8.0 stable, ComfyUI + 23 nodes |
+| CUDA | 12.8 | Stable, recommended for 5090. cu130 (NVFP4) can be upgraded later |
+| Python | 3.13 | Included in base image (Ubuntu 24.04) |
+| PyTorch | 2.8.0 stable cu128 | Stable release, supports sm_120 (Blackwell) |
 | Attention | SDPA + SageAttention | ~2x faster than xformers on 5090 |
 | xformers | **NOT INSTALLED** | Silently downgrades PyTorch, slower on Blackwell |
 
 ## What's included
 
-- **75 custom nodes** (29 git-cloned + 45 CNR + Manager), all deps baked in. See **[CUSTOM_NODES.md](CUSTOM_NODES.md)** for the full list with GitHub links and descriptions.
+- **78 custom nodes** (23 from base + 50 git-cloned + 5 pinned), all deps baked in. See **[CUSTOM_NODES.md](CUSTOM_NODES.md)** for the full list with GitHub links and descriptions.
 - SageAttention 2.x for accelerated attention
-- JupyterLab for file/model management
 - SSH + Supervisor for cloud pod management
 
 ## Architecture: Code vs Data
@@ -26,20 +25,20 @@ The image separates **code** (baked into Docker, immutable) from **data** (on a 
 
 ```
 Docker Image (immutable):                   Persistent Volume (/storage):
-├── /app/ComfyUI/                            ├── models/
+├── /ComfyUI/                                ├── models/
 │   ├── main.py                              │   ├── checkpoints/
-│   ├── custom_nodes/ (74 nodes + deps)      │   ├── loras/
+│   ├── custom_nodes/ (78 nodes + deps)      │   ├── loras/
 │   ├── extra_model_paths.yaml ─────────────►│   ├── vae/
 │   └── ...                                  │   ├── controlnet/
-├── PyTorch cu130 + SageAttention            │   ├── clip/
-├── JupyterLab                               │   ├── clip_vision/
-└── supervisor (ComfyUI + Jupyter + SSH)     │   ├── diffusion_models/
+├── /app/ComfyUI → /ComfyUI (symlink)       │   ├── clip/
+├── PyTorch 2.8.0 cu128 + SageAttention     │   ├── clip_vision/
+└── supervisor (ComfyUI + SSH)               │   ├── diffusion_models/
                                              │   ├── embeddings/
                                              │   ├── style_models/
                                              │   ├── text_encoders/
                                              │   ├── unet/
                                              │   └── upscale_models/
-                                             └── user/   ← symlinked from /app/ComfyUI/user
+                                             └── user/   ← symlinked from /ComfyUI/user
 ```
 
 Output and input stay on the container's ephemeral disk. Gen-studio pulls results via SSH (`transfer_previews()`) as soon as each task completes, so there's no need to persist them. They get wiped on pod restart, which keeps the persistent volume clean.
@@ -113,9 +112,9 @@ On first boot, `start.sh` creates one symlink:
 
 | Container path | Storage | Why |
 |---|---|---|
-| `/app/ComfyUI/user` | **Persistent** (`/storage/user`) | ComfyUI settings, saved workflows, and UI preferences. Small files, annoying to reconfigure. |
-| `/app/ComfyUI/output` | **Ephemeral** (container disk) | Gen-studio pulls results via SSH before pod stops. No need to accumulate. |
-| `/app/ComfyUI/input` | **Ephemeral** (container disk) | Reference images pushed per-job. Temporary by nature. |
+| `/ComfyUI/user` | **Persistent** (`/storage/user`) | ComfyUI settings, saved workflows, and UI preferences. Small files, annoying to reconfigure. |
+| `/ComfyUI/output` | **Ephemeral** (container disk) | Gen-studio pulls results via SSH before pod stops. No need to accumulate. |
+| `/ComfyUI/input` | **Ephemeral** (container disk) | Reference images pushed per-job. Temporary by nature. |
 
 Output and input intentionally stay on the container's ephemeral disk. Gen-studio's `transfer_previews()` copies results off the pod the moment each task completes. Persisting output would just waste volume space, especially with video workflows that dump 100+ MB per generation.
 
@@ -155,7 +154,7 @@ Templates, then Create Custom Template:
 | **System disk** | 40 GB |
 | **Persistence Volume** | Select the volume you created |
 | **Mount Point** | `/storage` |
-| **Expose Ports** | `8188, 8888, 22` |
+| **Expose Ports** | `8188, 22` |
 
 The mount point **must** be `/storage`. That's what `extra_model_paths.yaml` and `start.sh` expect.
 
@@ -209,13 +208,12 @@ rsync -av /app/ComfyUI/models/ /storage/models/
 | Port | Service | Purpose |
 |---|---|---|
 | 8188 | ComfyUI | Main UI + API |
-| 8888 | JupyterLab | File manager, model uploads, output browsing |
 | 22 | SSH | Remote access, scripting, SCP file transfers |
 
 ## Why not xformers?
 
 On RTX 5090 (Blackwell), xformers causes three problems:
-1. **Silently downgrades PyTorch** from cu130 to cu128 via its dependency chain, which breaks NVFP4
+1. **Silently downgrades PyTorch** via its dependency chain
 2. **Has no prebuilt wheels** for sm_120 and must build from source
 3. **Is slower** than PyTorch SDPA + SageAttention on Blackwell
 
@@ -225,9 +223,9 @@ The image uses PyTorch's built-in SDPA as default, with SageAttention available 
 
 ## Build notes
 
-The Dockerfile uses `nvidia/cuda:13.0.1-devel-ubuntu22.04` as the base. The `devel` variant is ~3.5 GB larger than `runtime`, but it includes gcc, nvcc, and CUDA headers needed to compile SageAttention's CUDA kernels and any custom node C extensions. A multi-stage build could slim this down later.
+The Dockerfile uses `sombi/comfyui:base-torch2.8.0-cu128` as the base. This is a pre-built image with CUDA 12.8, Python 3.13, PyTorch 2.8.0 stable, ComfyUI, Manager, and 23 common custom nodes already installed and tested. We layer only Igor's extra 55 nodes + SimplePod config on top.
 
-Ubuntu 22.04 ships Python 3.10, so the Dockerfile adds the [deadsnakes PPA](https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa) for Python 3.12. pip is installed via `get-pip.py` (the apt `python3-pip` package targets the system Python 3.10).
+A symlink `/app/ComfyUI → /ComfyUI` ensures gen-studio compatibility without code changes.
 
 ## Updating custom nodes
 

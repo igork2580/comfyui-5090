@@ -9,9 +9,9 @@ set -e
 mkdir -p /storage/models /storage/user
 
 # Symlink only user settings to persistent storage
-if [ ! -L /app/ComfyUI/user ]; then
-    rm -rf /app/ComfyUI/user
-    ln -s /storage/user /app/ComfyUI/user
+if [ ! -L /ComfyUI/user ]; then
+    rm -rf /ComfyUI/user
+    ln -s /storage/user /ComfyUI/user
 fi
 
 # Create model subdirs on persistent volume if they don't exist
@@ -25,7 +25,7 @@ echo "=== ComfyUI RTX 5090 Optimized ==="
 echo "PyTorch: $(python -c 'import torch; print(torch.__version__)')"
 echo "CUDA:    $(python -c 'import torch; print(torch.version.cuda)')"
 echo "Models:  /storage/models (persistent)"
-echo "Output:  /app/ComfyUI/output (ephemeral)"
+echo "Output:  /ComfyUI/output (ephemeral)"
 echo "==================================="
 
-exec /usr/local/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
