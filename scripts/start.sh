@@ -30,6 +30,18 @@ for d in checkpoints loras vae controlnet clip clip_vision configs \
     mkdir -p "/storage/models/$d"
 done
 
+# Impact-Pack's UltralyticsDetectorProvider ignores extra_model_paths.yaml
+# and only looks in /ComfyUI/models/ultralytics/. Symlink from persistent storage.
+for subdir in bbox segm; do
+    mkdir -p "/storage/models/ultralytics/$subdir"
+    mkdir -p "/ComfyUI/models/ultralytics/$subdir"
+    for f in "/storage/models/ultralytics/$subdir"/*; do
+        [ -e "$f" ] || continue
+        target="/ComfyUI/models/ultralytics/$subdir/$(basename "$f")"
+        [ -e "$target" ] || ln -s "$f" "$target"
+    done
+done
+
 echo "=== ComfyUI RTX 5090 Optimized ==="
 echo "PyTorch: $(python -c 'import torch; print(torch.__version__)')"
 echo "CUDA:    $(python -c 'import torch; print(torch.version.cuda)')"
