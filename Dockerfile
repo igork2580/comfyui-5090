@@ -176,9 +176,6 @@ RUN for d in /app/ComfyUI/custom_nodes/*/; do \
         [ -f "$d/install.py" ] && cd "$d" && python install.py || true; \
     done
 
-# ── JupyterLab (for easy file/model management) ────────────
-RUN pip install --no-cache-dir jupyterlab
-
 # ── Verify PyTorch wasn't downgraded by deps ───────────────
 # CRITICAL: custom node deps (especially xformers) can silently
 # replace cu130 nightly with cu128 stable. This check catches it.
@@ -203,6 +200,6 @@ RUN chmod +x /start.sh
 RUN mkdir -p /app/ComfyUI/output /app/ComfyUI/input
 
 WORKDIR /app/ComfyUI
-EXPOSE 8188 8888 22
+EXPOSE 8188 22
 
 CMD ["/start.sh"]
