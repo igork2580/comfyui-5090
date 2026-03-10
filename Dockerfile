@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.12 python3.12-venv python3.12-dev \
         git git-lfs wget curl rsync \
         ffmpeg libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 \
-        openssh-server supervisor \
+        openssh-server \
     && rm -rf /var/lib/apt/lists/* \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
@@ -31,7 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ── pip setup (get-pip.py for deadsnakes Python 3.12) ───────
 # python3-pip from apt targets system Python 3.10, not 3.12.
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
-    python -m pip install --upgrade pip setuptools wheel
+    python -m pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir supervisor
 
 # ── PyTorch nightly cu130 (pinned for reproducibility) ──────
 # NVFP4 quantization REQUIRES cu130. Do NOT downgrade to cu128.
