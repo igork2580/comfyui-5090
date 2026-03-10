@@ -6,6 +6,11 @@ set -e
 # Output and input stay on the container's ephemeral disk.
 # Gen-studio pulls results via SSH before the pod stops.
 
+# ── SSH setup (base image has openssh but no host keys) ──────
+mkdir -p /var/run/sshd
+ssh-keygen -A 2>/dev/null
+grep -q 'PermitRootLogin yes' /etc/ssh/sshd_config || echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
+
 mkdir -p /storage/models /storage/user
 
 # Symlink only user settings to persistent storage
