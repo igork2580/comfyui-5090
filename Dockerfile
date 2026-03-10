@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 \
         openssh-server \
     && rm -rf /var/lib/apt/lists/* \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # ── pip setup (get-pip.py for deadsnakes Python 3.12) ───────
@@ -187,11 +186,20 @@ assert v and v.startswith('13.'), \
     f'CUDA version is {v}, expected 13.x. A dependency downgraded PyTorch!'; \
 print(f'OK: torch={torch.__version__}, cuda={v}')"
 
+# ── Verify custom node count ────────────────────────────────
+# The || true on node installs silently swallows failures.
+# Fail the build if too few nodes are present.
+RUN node_count=$(find /app/ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
+    echo "Custom nodes installed: $((node_count - 1))" && \
+    [ "$node_count" -gt 50 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 70+" && exit 1)
+
 # ── Model paths → persistent volume ────────────────────────
 COPY extra_model_paths.yaml /app/ComfyUI/extra_model_paths.yaml
 
 # ── SSH + Supervisor (SimplePod compatibility) ──────────────
 RUN mkdir -p /var/run/sshd /var/log && \
+    ssh-keygen -A && \
     echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
 COPY scripts/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY scripts/start.sh /start.sh

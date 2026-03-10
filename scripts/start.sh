@@ -28,4 +28,4 @@ echo "Models:  /storage/models (persistent)"
 echo "Output:  /app/ComfyUI/output (ephemeral)"
 echo "==================================="
 
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+exec /usr/local/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
