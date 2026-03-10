@@ -40,10 +40,10 @@ Docker Image (immutable):                   Persistent Volume (/storage):
                                              │   ├── text_encoders/
                                              │   ├── unet/
                                              │   └── upscale_models/
-                                             ├── output/ ← symlinked from /app/ComfyUI/output
-                                             ├── input/  ← symlinked from /app/ComfyUI/input
-                                             └── user/   ← ComfyUI settings + workflows
+                                             └── user/   ← symlinked from /app/ComfyUI/user
 ```
+
+Output and input stay on the container's ephemeral disk. Gen-studio pulls results via SSH (`transfer_previews()`) as soon as each task completes, so there's no need to persist them. They get wiped on pod restart, which keeps the persistent volume clean.
 
 ## Persistent Storage (in depth)
 
@@ -108,17 +108,17 @@ You can create subfolders inside any model directory. ComfyUI scans recursively,
 
 In the ComfyUI dropdown, these appear as `sd15/realisticVision` and `style/add_detail`. Keeps things clean when you have 50+ models.
 
-### What gets symlinked (and why)
+### What gets symlinked (and what stays ephemeral)
 
-On first boot, `start.sh` creates three symlinks:
+On first boot, `start.sh` creates one symlink:
 
-| Container path | Points to | Purpose |
+| Container path | Storage | Why |
 |---|---|---|
-| `/app/ComfyUI/output` | `/storage/output` | Generated images persist across pod restarts |
-| `/app/ComfyUI/input` | `/storage/input` | Reference images, masks, and other inputs you upload |
-| `/app/ComfyUI/user` | `/storage/user` | ComfyUI settings, saved workflows, and UI preferences |
+| `/app/ComfyUI/user` | **Persistent** (`/storage/user`) | ComfyUI settings, saved workflows, and UI preferences. Small files, annoying to reconfigure. |
+| `/app/ComfyUI/output` | **Ephemeral** (container disk) | Gen-studio pulls results via SSH before pod stops. No need to accumulate. |
+| `/app/ComfyUI/input` | **Ephemeral** (container disk) | Reference images pushed per-job. Temporary by nature. |
 
-The script checks if the symlink already exists before creating it. If you're running without a persistent volume (local testing), these directories just stay as regular folders inside the container.
+Output and input intentionally stay on the container's ephemeral disk. Gen-studio's `transfer_previews()` copies results off the pod the moment each task completes. Persisting output would just waste volume space, especially with video workflows that dump 100+ MB per generation.
 
 ### Storage sizing guide
 
