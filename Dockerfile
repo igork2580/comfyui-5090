@@ -9,14 +9,18 @@
 # Stack: CUDA 13.0 | Python 3.12 | PyTorch nightly cu130
 # ============================================================
 
-FROM nvidia/cuda:13.0.1-runtime-ubuntu22.04 AS base
+FROM nvidia/cuda:13.0.1-devel-ubuntu22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
-# ── System packages ─────────────────────────────────────────
+# ── System packages + deadsnakes PPA for Python 3.12 ────────
+# Ubuntu 22.04 ships Python 3.10; need deadsnakes PPA for 3.12.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3.12 python3.12-venv python3.12-dev python3-pip \
+        software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        python3.12 python3.12-venv python3.12-dev \
         git git-lfs wget curl rsync \
         ffmpeg libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 \
         openssh-server supervisor \
@@ -24,8 +28,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
-# ── pip setup ───────────────────────────────────────────────
-RUN python -m pip install --upgrade pip setuptools wheel
+# ── pip setup (get-pip.py for deadsnakes Python 3.12) ───────
+# python3-pip from apt targets system Python 3.10, not 3.12.
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12 && \
+    python -m pip install --upgrade pip setuptools wheel
 
 # ── PyTorch nightly cu130 (pinned for reproducibility) ──────
 # NVFP4 quantization REQUIRES cu130. Do NOT downgrade to cu128.
