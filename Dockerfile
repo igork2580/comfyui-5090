@@ -101,8 +101,8 @@ print(f'OK: torch={torch.__version__}, cuda={v}')"
 # Fail the build if too few nodes are present.
 RUN node_count=$(find /app/ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
     echo "Custom nodes installed: $((node_count - 1))" && \
-    [ "$node_count" -gt 20 ] || \
-    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 22+" && exit 1)
+    [ "$node_count" -gt 60 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 60+" && exit 1)
 
 # ── Model paths → persistent volume ────────────────────────
 COPY extra_model_paths.yaml /app/ComfyUI/extra_model_paths.yaml
