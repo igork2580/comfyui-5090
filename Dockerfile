@@ -55,61 +55,15 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
 WORKDIR /app/ComfyUI/custom_nodes
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
 
-# ── CNR-managed nodes (installed via comfy-cli) ─────────────
-# These were previously managed by ComfyUI-Manager on the pod.
-# Install comfy-cli, then batch install all CNR nodes.
-RUN pip install --no-cache-dir comfy-cli && \
-    comfy --skip-prompt set-default /app/ComfyUI
-
+# ── Custom nodes from git (replaces broken comfy-cli/CNR) ────
+# comfy-cli's cm-cli.py fails in Docker builds (needs running ComfyUI).
+# Direct git clone is reliable and matches somb1/ComfyUI-Docker approach.
+COPY custom_nodes.txt /tmp/custom_nodes.txt
 WORKDIR /app/ComfyUI/custom_nodes
-RUN comfy --skip-prompt node install \
-        comfyui-impact-pack \
-        comfyui-impact-subpack \
-        comfyui-inspire-pack \
-        comfyui-kjnodes \
-        comfyui-controlnet-aux \
-        comfyui-ipadapter-plus \
-        comfyui-essentials \
-        comfyui-videohelpersuite \
-        comfyui-frame-interpolation \
-        comfyui-gguf \
-        comfyui-lora-manager \
-        comfyui-multigpu \
-        comfyui-post-processing-nodes \
-        cg-use-everywhere \
-        rgthree-comfy \
-        was-ns \
-        comfyui-easy-use \
-        comfyui-florence2 \
-        comfyui-detail-daemon \
-        comfyui-dream-project \
-        comfyui-art-venture \
-        comfyui-ppm \
-        comfyui-unload-model \
-        comfyui-hakuimg \
-        comfyui-cliption \
-        comfyui-custom-scripts \
-        comfyui-denoisechooser \
-        comfyui-fbcnn \
-        comfyui-image-saver \
-        comfyui-mxtoolkit \
-        comfyui-videonoisewarp \
-        comfy-mtb \
-        comfyui-tinyterranodes \
-        comfyui-ultimatesdupscale \
-        derfuu-comfyui-moddednodes \
-        efficiency-nodes-comfyui \
-        maxedout \
-        wavespeed \
-        wywywywy-pause \
-        z-tipo-extension \
-        the-ai-doctors-clinical-tools \
-        comfyui-melbandroformer \
-        comfyui-wanvideowrapper \
-        comfyui-framepackwrapper-plusone \
-    || true
+RUN xargs -n 1 git clone --recursive < /tmp/custom_nodes.txt && \
+    rm /tmp/custom_nodes.txt
 
-# ── Real git-cloned custom nodes (pinned commits) ──────────
+# ── Pinned-commit custom nodes ──────────────────────────────
 RUN git clone https://github.com/ManglerFTW/ComfyI2I.git && \
         cd ComfyI2I && git checkout 2bd011b && cd .. && \
     git clone https://github.com/M1kep/ComfyLiterals.git && \
