@@ -6,10 +6,14 @@ set -e
 # Output and input stay on the container's ephemeral disk.
 # Gen-studio pulls results via SSH before the pod stops.
 
-# ── SSH setup (base image has openssh but no host keys) ──────
+# ── SSH setup (base image has openssh but needs configuration) ──
 mkdir -p /var/run/sshd
 ssh-keygen -A 2>/dev/null
-grep -q 'PermitRootLogin yes' /etc/ssh/sshd_config || echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
+# Allow root login with password (SimplePod uses hashId as password)
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+grep -q '^PermitRootLogin yes' /etc/ssh/sshd_config || echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
+grep -q '^PasswordAuthentication yes' /etc/ssh/sshd_config || echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
 
 mkdir -p /storage/models /storage/user
 
