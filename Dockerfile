@@ -75,16 +75,19 @@ RUN git clone https://github.com/M1kep/ComfyLiterals.git && \
     git clone https://github.com/jamesWalker55/comfyui-various.git && \
         cd comfyui-various && git checkout 5bd85aa && cd ..
 
-# ── Install all custom node deps (single global resolve) ───
-RUN find /app/ComfyUI/custom_nodes -name "requirements.txt" \
-        -exec cat {} + > /tmp/all_reqs.txt 2>/dev/null && \
-    pip install --no-cache-dir -r /tmp/all_reqs.txt || true && \
-    rm -f /tmp/all_reqs.txt
+# ── Install all custom node deps (per-node to avoid concat bugs) ──
+RUN for req in /app/ComfyUI/custom_nodes/*/requirements.txt; do \
+        pip install --no-cache-dir -r "$req" || true; \
+    done
 
 # Run install.py scripts where they exist
 RUN for d in /app/ComfyUI/custom_nodes/*/; do \
         [ -f "$d/install.py" ] && cd "$d" && python install.py || true; \
     done
+
+# ── Patch VHS helpDOM bug (crashes workflow loading) ─────
+RUN sed -i 's/helpDOM.addHelp(this, nodeType, description)/if (helpDOM \&\& helpDOM.addHelp) { helpDOM.addHelp(this, nodeType, description) }/' \
+    /app/ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite/web/js/VHS.core.js
 
 # ── Verify PyTorch wasn't downgraded by deps ───────────────
 # CRITICAL: custom node deps (especially xformers) can silently
