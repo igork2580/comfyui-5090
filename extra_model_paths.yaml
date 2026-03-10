@@ -1,5 +1,8 @@
 # Point ComfyUI to persistent volume for all model types.
 # The persistent volume is mounted at /storage on SimplePod.
+#
+# This covers both standard ComfyUI model types and directories
+# used by custom nodes (FBCNN, MMAudio, SAM, YOLO, rembg).
 
 storage:
     base_path: /storage/models
@@ -9,9 +12,15 @@ storage:
     controlnet: controlnet/
     clip: clip/
     clip_vision: clip_vision/
+    configs: configs/
     diffusion_models: diffusion_models/
     embeddings: embeddings/
     style_models: style_models/
     text_encoders: text_encoders/
     unet: unet/
     upscale_models: upscale_models/
+    FBCNN: FBCNN/
+    mmaudio: mmaudio/
+    rembg: rembg/
+    sams: sams/
+    ultralytics: ultralytics/
