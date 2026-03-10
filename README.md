@@ -15,8 +15,7 @@ Production-ready ComfyUI image optimized for RTX 5090 with NVFP4 quantization su
 
 ## What's included
 
-- **74 custom nodes** (29 git-cloned + 45 CNR-managed), all deps baked in
-- ComfyUI-Manager for browser-based node management
+- **75 custom nodes** (29 git-cloned + 45 CNR + Manager), all deps baked in. See **[CUSTOM_NODES.md](CUSTOM_NODES.md)** for the full list with GitHub links and descriptions.
 - SageAttention 2.x for accelerated attention
 - JupyterLab for file/model management
 - SSH + Supervisor for cloud pod management
