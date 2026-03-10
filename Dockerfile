@@ -59,7 +59,7 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
 # These were previously managed by ComfyUI-Manager on the pod.
 # Install comfy-cli, then batch install all CNR nodes.
 RUN pip install --no-cache-dir comfy-cli && \
-    comfy --skip-prompt install --path /app/ComfyUI || true
+    comfy --skip-prompt set-default /app/ComfyUI
 
 WORKDIR /app/ComfyUI/custom_nodes
 RUN comfy --skip-prompt node install \
