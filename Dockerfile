@@ -14,6 +14,11 @@ FROM sombi/comfyui:base-torch2.8.0-cu128
 # gen-studio hardcodes /app/ComfyUI in pod manager + node resolver.
 RUN mkdir -p /app && ln -s /ComfyUI /app/ComfyUI
 
+# ── Make venv python available system-wide ───────────────────
+# SSH sessions don't inherit Docker ENV PATH, so symlink python/pip.
+RUN ln -sf /venv/bin/python /usr/local/bin/python && \
+    ln -sf /venv/bin/pip /usr/local/bin/pip
+
 # ── SageAttention (CUDA backend, ~2x faster than SDPA) ──────
 RUN pip install --no-cache-dir sageattention || true
 
