@@ -63,61 +63,17 @@ WORKDIR /app/ComfyUI/custom_nodes
 RUN xargs -n 1 git clone --recursive < /tmp/custom_nodes.txt && \
     rm /tmp/custom_nodes.txt
 
-# ── Pinned-commit custom nodes ──────────────────────────────
-RUN git clone https://github.com/ManglerFTW/ComfyI2I.git && \
-        cd ComfyI2I && git checkout 2bd011b && cd .. && \
-    git clone https://github.com/M1kep/ComfyLiterals.git && \
+# ── Pinned-commit custom nodes (not available on CNR) ────────
+RUN git clone https://github.com/M1kep/ComfyLiterals.git && \
         cd ComfyLiterals && git checkout bdddb08 && cd .. && \
-    git clone https://github.com/evanspearman/ComfyMath.git && \
-        cd ComfyMath && git checkout c011772 && cd .. && \
-    git clone https://github.com/Eagle-CN/ComfyUI-Addoor.git && \
-        cd ComfyUI-Addoor && git checkout d51659f && cd .. && \
-    git clone https://github.com/crystian/ComfyUI-Crystools.git && \
-        cd ComfyUI-Crystools && git checkout 2f18256 && cd .. && \
-    git clone https://github.com/ShmuelRonen/ComfyUI-FramePackWrapper_Plus.git && \
-        cd ComfyUI-FramePackWrapper_Plus && git checkout 93e60c8 && cd .. && \
-    git clone https://github.com/facok/ComfyUI-HunyuanVideoMultiLora.git && \
-        cd ComfyUI-HunyuanVideoMultiLora && git checkout 9e18b97 && cd .. && \
-    git clone https://github.com/spacepxl/ComfyUI-Image-Filters.git && \
-        cd ComfyUI-Image-Filters && git checkout bbb3fb0 && cd .. && \
-    git clone https://github.com/ShmuelRonen/ComfyUI-ImageMotionGuider.git && \
-        cd ComfyUI-ImageMotionGuider && git checkout de25e08 && cd .. && \
-    git clone https://github.com/K3NK3/ComfyUI-K3NKImageGrab.git && \
-        cd ComfyUI-K3NKImageGrab && git checkout 3da3775 && cd .. && \
     git clone https://github.com/kijai/ComfyUI-MMAudio.git && \
         cd ComfyUI-MMAudio && git checkout 8eaeb72 && cd .. && \
-    git clone https://github.com/DoctorDiffusion/ComfyUI-MediaMixer.git && \
-        cd ComfyUI-MediaMixer && git checkout 2bae7b5 && cd .. && \
-    git clone https://github.com/princepainter/ComfyUI-PainterI2V.git && \
-        cd ComfyUI-PainterI2V && git checkout 83e14e6 && cd .. && \
-    git clone https://github.com/princepainter/ComfyUI-PainterLongVideo.git && \
-        cd ComfyUI-PainterLongVideo && git checkout 889b4ff && cd .. && \
-    git clone https://github.com/GACLove/ComfyUI-VFI.git && \
-        cd ComfyUI-VFI && git checkout 6176a43 && cd .. && \
-    git clone https://github.com/ai-shizuka/ComfyUI-tbox.git && \
-        cd ComfyUI-tbox && git checkout 2d25ad7 && cd .. && \
     git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes.git && \
         cd ComfyUI_Comfyroll_CustomNodes && git checkout d78b780 && cd .. && \
-    git clone https://github.com/11dogzi/Comfyui-ergouzi-Nodes.git && \
-        cd Comfyui-ergouzi-Nodes && git checkout 0d6ac29 && cd .. && \
-    git clone https://github.com/ClownsharkBatwing/RES4LYF.git && \
-        cd RES4LYF && git checkout 0dc91c0 && cd .. && \
     git clone https://github.com/giriss/comfy-image-saver.git && \
         cd comfy-image-saver && git checkout 65e6903 && cd .. && \
-    git clone https://github.com/ashtar1984/comfyui-find-perfect-resolution.git && \
-        cd comfyui-find-perfect-resolution && git checkout b8ee6c1 && cd .. && \
-    git clone https://github.com/Goshe-nite/comfyui-gps-supplements.git && \
-        cd comfyui-gps-supplements && git checkout 7c7ac90 && cd .. && \
-    git clone https://github.com/kijai/ComfyUI-HunyuanVideoWrapper.git comfyui-hunyuanvideowrapper && \
-        cd comfyui-hunyuanvideowrapper && git checkout fcbd672 && cd .. && \
     git clone https://github.com/jamesWalker55/comfyui-various.git && \
-        cd comfyui-various && git checkout 5bd85aa && cd .. && \
-    git clone https://github.com/vrgamegirl19/comfyui-vrgamedevgirl.git && \
-        cd comfyui-vrgamedevgirl && git checkout ba70d2b && cd .. && \
-    git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git && \
-        cd masquerade-nodes-comfyui && git checkout 432cb4d && cd .. && \
-    git clone https://github.com/wallish77/wlsh_nodes.git && \
-        cd wlsh_nodes && git checkout 9780746 && cd ..
+        cd comfyui-various && git checkout 5bd85aa && cd ..
 
 # ── Install all custom node deps (single global resolve) ───
 RUN find /app/ComfyUI/custom_nodes -name "requirements.txt" \
@@ -145,8 +101,8 @@ print(f'OK: torch={torch.__version__}, cuda={v}')"
 # Fail the build if too few nodes are present.
 RUN node_count=$(find /app/ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
     echo "Custom nodes installed: $((node_count - 1))" && \
-    [ "$node_count" -gt 50 ] || \
-    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 70+" && exit 1)
+    [ "$node_count" -gt 20 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 22+" && exit 1)
 
 # ── Model paths → persistent volume ────────────────────────
 COPY extra_model_paths.yaml /app/ComfyUI/extra_model_paths.yaml
