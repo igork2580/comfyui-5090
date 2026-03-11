@@ -52,6 +52,11 @@ RUN for d in /ComfyUI/custom_nodes/*/; do \
 RUN sed -i 's/helpDOM.addHelp(this, nodeType, description)/if (helpDOM \&\& helpDOM.addHelp) { helpDOM.addHelp(this, nodeType, description) }/' \
     /ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite/web/js/VHS.core.js || true
 
+# ── Patch ComfyUI utils.py TypeError on FileNotFoundError ────
+# e.args[0] can be an int (errno), not a string. Cast to str.
+RUN sed -i 's/message = e.args\[0\]/message = str(e.args[0])/' \
+    /ComfyUI/comfy/utils.py
+
 # ── Verify PyTorch wasn't downgraded by deps ─────────────────
 RUN python -c "import torch; v=torch.version.cuda; assert v.startswith('12.8'), f'CUDA {v}, expected 12.8'"
 
