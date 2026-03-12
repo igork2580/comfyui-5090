@@ -48,3 +48,4 @@ https://github.com/kijai/ComfyUI-HunyuanVideoWrapper.git
 https://github.com/vrgamegirl19/comfyui-vrgamedevgirl.git
 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git
 https://github.com/wallish77/wlsh_nodes.git
+https://github.com/Lightricks/ComfyUI-LTXVideo.git
