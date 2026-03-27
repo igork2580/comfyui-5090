@@ -42,6 +42,13 @@ for subdir in bbox segm; do
     done
 done
 
+# Symlink VAE files to root so workflows can reference with or without LTX2/ prefix
+for f in /storage/models/vae/LTX2/*.safetensors; do
+    [ -e "$f" ] || continue
+    target="/storage/models/vae/$(basename "$f")"
+    [ -e "$target" ] || ln -s "$f" "$target"
+done
+
 echo "=== ComfyUI RTX 5090 Optimized ==="
 echo "PyTorch: $(python -c 'import torch; print(torch.__version__)')"
 echo "CUDA:    $(python -c 'import torch; print(torch.version.cuda)')"
