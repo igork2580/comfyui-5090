@@ -19,6 +19,7 @@ storage:
     text_encoders: text_encoders/
     unet: unet/
     upscale_models: upscale_models/
+    latent_upscale_models: latent_upscale_models/
     FBCNN: FBCNN/
     mmaudio: mmaudio/
     rembg: rembg/

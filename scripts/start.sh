@@ -26,7 +26,7 @@ fi
 # Create model subdirs on persistent volume if they don't exist
 for d in checkpoints loras vae controlnet clip clip_vision configs \
          diffusion_models embeddings style_models text_encoders unet \
-         upscale_models FBCNN mmaudio rembg sams ultralytics; do
+         upscale_models latent_upscale_models FBCNN mmaudio rembg sams ultralytics; do
     mkdir -p "/storage/models/$d"
 done
 
