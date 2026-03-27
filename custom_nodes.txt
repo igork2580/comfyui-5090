@@ -49,3 +49,7 @@ https://github.com/vrgamegirl19/comfyui-vrgamedevgirl.git
 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git
 https://github.com/wallish77/wlsh_nodes.git
 https://github.com/Lightricks/ComfyUI-LTXVideo.git
+https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI.git
+https://github.com/LAOGOU-666/Comfyui-Memory_Cleanup.git
+https://github.com/gseth/ControlAltAI-Nodes.git
+https://github.com/danTheMonk/comfyui-int-and-float.git

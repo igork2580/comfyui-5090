@@ -64,14 +64,19 @@ RUN sed -i 's/message = e.args\[0\]/message = str(e.args[0])/' \
 COPY scripts/patch_lora_manager.py /tmp/patch_lora_manager.py
 RUN python /tmp/patch_lora_manager.py && rm /tmp/patch_lora_manager.py
 
+# ── Fix torchaudio version to match PyTorch ────────────────
+# Base image ships torchaudio 2.11 which has ABI mismatch with torch 2.8.
+# This breaks all audio nodes (LTXVAudioVAE*, AudioAdjustVolume, etc.)
+RUN pip install --no-cache-dir torchaudio==2.8.0+cu128 --index-url https://download.pytorch.org/whl/cu128
+
 # ── Verify PyTorch wasn't downgraded by deps ─────────────────
 RUN python -c "import torch; v=torch.version.cuda; assert v.startswith('12.8'), f'CUDA {v}, expected 12.8'"
 
 # ── Verify custom node count ────────────────────────────────
 RUN node_count=$(find /ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
     echo "Custom nodes installed: $((node_count - 1))" && \
-    [ "$node_count" -gt 60 ] || \
-    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 60+" && exit 1)
+    [ "$node_count" -gt 64 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 64+" && exit 1)
 
 # ── Model paths → persistent volume ─────────────────────────
 COPY extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
