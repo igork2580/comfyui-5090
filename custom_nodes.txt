@@ -53,3 +53,8 @@ https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI.git
 https://github.com/LAOGOU-666/Comfyui-Memory_Cleanup.git
 https://github.com/gseth/ControlAltAI-Nodes.git
 https://github.com/danTheMonk/comfyui-int-and-float.git
+https://github.com/kijai/ComfyUI-IC-Light.git
+https://github.com/liusida/ComfyUI-AutoCropFaces.git
+https://github.com/huanngzh/ComfyUI-MVAdapter.git
+https://github.com/lldacing/ComfyUI_BiRefNet_ll.git
+https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait.git

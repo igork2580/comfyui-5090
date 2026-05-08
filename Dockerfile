@@ -48,6 +48,9 @@ RUN for d in /ComfyUI/custom_nodes/*/; do \
         [ -f "$d/install.py" ] && cd "$d" && python install.py || true; \
     done
 
+# ── Fix protobuf for MVAdapter (transformers needs gencode 6.31+) ──
+RUN pip install --no-cache-dir "protobuf>=6.31.1"
+
 # ── Patch VHS helpDOM bug (crashes workflow loading) ─────────
 RUN sed -i 's/helpDOM.addHelp(this, nodeType, description)/if (helpDOM \&\& helpDOM.addHelp) { helpDOM.addHelp(this, nodeType, description) }/' \
     /ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite/web/js/VHS.core.js || true
@@ -75,8 +78,8 @@ RUN python -c "import torch; v=torch.version.cuda; assert v.startswith('12.8'), 
 # ── Verify custom node count ────────────────────────────────
 RUN node_count=$(find /ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
     echo "Custom nodes installed: $((node_count - 1))" && \
-    [ "$node_count" -gt 64 ] || \
-    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 64+" && exit 1)
+    [ "$node_count" -gt 69 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 69+" && exit 1)
 
 # ── Model paths → persistent volume ─────────────────────────
 COPY extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
