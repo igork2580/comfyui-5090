@@ -48,8 +48,11 @@ RUN for d in /ComfyUI/custom_nodes/*/; do \
         [ -f "$d/install.py" ] && cd "$d" && python install.py || true; \
     done
 
-# ── Fix protobuf for MVAdapter (transformers needs gencode 6.31+) ──
-RUN pip install --no-cache-dir "protobuf>=6.31.1"
+# ── Fix protobuf + transformers for MVAdapter ────────────────
+# MVAdapter pins transformers==4.46.3 which is too old for diffusers 0.38+
+# (diffusers needs Dinov2WithRegistersConfig, added in transformers 4.48).
+# protobuf needs to be >=6.31.1 for transformers/tensorflow gencode compat.
+RUN pip install --no-cache-dir "protobuf>=6.31.1" "transformers>=4.48"
 
 # ── Patch VHS helpDOM bug (crashes workflow loading) ─────────
 RUN sed -i 's/helpDOM.addHelp(this, nodeType, description)/if (helpDOM \&\& helpDOM.addHelp) { helpDOM.addHelp(this, nodeType, description) }/' \
