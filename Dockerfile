@@ -19,6 +19,18 @@ RUN mkdir -p /app && ln -s /ComfyUI /app/ComfyUI
 RUN ln -sf /venv/bin/python /usr/local/bin/python && \
     ln -sf /venv/bin/pip /usr/local/bin/pip
 
+# ── Update ComfyUI to a pinned release ──────────────────────
+# Base image ships an older ComfyUI commit (~0.18.1). v0.21.0 is the first
+# tagged release with native SAM3 support (SAM3_Detect), required by the Qwen
+# "SwapAnything" workflow. Pin to a tag for reproducibility. The torchaudio /
+# protobuf / transformers re-assertions below run after this, so its
+# requirements.txt churn (frontend-package, comfy-aimdo, …) can't disturb the
+# pinned CUDA stack.
+RUN cd /ComfyUI && \
+    git fetch --tags --quiet origin && \
+    git checkout -f v0.21.0 && \
+    pip install --no-cache-dir -r requirements.txt
+
 # ── SageAttention (CUDA backend, ~2x faster than SDPA) ──────
 RUN pip install --no-cache-dir sageattention || true
 
@@ -69,6 +81,12 @@ RUN sed -i 's/message = e.args\[0\]/message = str(e.args[0])/' \
 # This adds a folder_paths.get_full_path() fallback before returning.
 COPY scripts/patch_lora_manager.py /tmp/patch_lora_manager.py
 RUN python /tmp/patch_lora_manager.py && rm /tmp/patch_lora_manager.py
+
+# ── Patch LayerStyle-Advance BiRefNet for torch-2.8 / py3.13 ─
+# BiRefNet-General loads with mixed fp16/fp32 weights -> "Input type (float) and
+# bias type (c10::Half)" at inference. Force model + input to fp32.
+COPY scripts/patch_layerstyle_birefnet.py /tmp/patch_layerstyle_birefnet.py
+RUN python /tmp/patch_layerstyle_birefnet.py && rm /tmp/patch_layerstyle_birefnet.py
 
 # ── Fix torchaudio version to match PyTorch ────────────────
 # Base image ships torchaudio 2.11 which has ABI mismatch with torch 2.8.

@@ -50,11 +50,17 @@ for f in /storage/models/vae/LTX2/*.safetensors; do
 done
 
 # LayerStyle-Advance's LoadBiRefNetModelV2 hardcodes /ComfyUI/models/BiRefNet/
-# (ignores extra_model_paths.yaml) and auto-downloads ZhengPeng7/BiRefNet there on
-# first use. Symlink to persistent storage so it's fetched once, not on every pod.
+# (ignores extra_model_paths.yaml). Symlink to persistent storage.
 if [ ! -L /ComfyUI/models/BiRefNet ]; then
     rm -rf /ComfyUI/models/BiRefNet
     ln -s /storage/models/BiRefNet /ComfyUI/models/BiRefNet
+fi
+# That node has a bug: for version "BiRefNet-General" it never auto-downloads —
+# it just from_pretrained()s models/BiRefNet/BiRefNet-General/ which must already
+# exist. Pre-fetch it once per persistent volume (~430 MB; quick when present).
+if [ ! -f /storage/models/BiRefNet/BiRefNet-General/config.json ]; then
+    echo "Fetching BiRefNet-General (ZhengPeng7/BiRefNet)..."
+    python -c "from huggingface_hub import snapshot_download; snapshot_download('ZhengPeng7/BiRefNet', local_dir='/storage/models/BiRefNet/BiRefNet-General', ignore_patterns=['*.md','*.txt','.gitattributes'])" || true
 fi
 
 echo "=== ComfyUI RTX 5090 Optimized ==="

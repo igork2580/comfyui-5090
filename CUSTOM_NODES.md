@@ -117,4 +117,4 @@ Some nodes need specific model files on the persistent volume:
 | ComfyUI-MMAudio | `mmaudio/` | MMAudio weights (~8.6 GB) |
 | comfyui-controlnet-aux | Downloads automatically | Preprocessor models cached at runtime |
 | comfy-mtb | `rembg/` | Background removal model |
-| ComfyUI_LayerStyle_Advance (`LoadBiRefNetModelV2`) | `BiRefNet/` (symlinked to `/ComfyUI/models/BiRefNet` by `start.sh`) | Auto-downloads `ZhengPeng7/BiRefNet` (~430 MB) on first use |
+| ComfyUI_LayerStyle_Advance (`LoadBiRefNetModelV2`) | `BiRefNet/BiRefNet-General/` (symlinked to `/ComfyUI/models/BiRefNet` by `start.sh`) | `start.sh` pre-fetches `ZhengPeng7/BiRefNet` (~430 MB) here — the node's own auto-download is broken for this version. Also patched for the torch-2.8 fp16/fp32 dtype clash (`scripts/patch_layerstyle_birefnet.py`). |
