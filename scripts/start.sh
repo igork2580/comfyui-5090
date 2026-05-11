@@ -63,6 +63,16 @@ if [ ! -f /storage/models/BiRefNet/BiRefNet-General/config.json ]; then
     python -c "from huggingface_hub import snapshot_download; snapshot_download('ZhengPeng7/BiRefNet', local_dir='/storage/models/BiRefNet/BiRefNet-General', ignore_patterns=['*.md','*.txt','.gitattributes'])" || true
 fi
 
+# SageAttention 1.x has no Blackwell (sm_12x) kernels — it segfaults ComfyUI on
+# RTX 5090 when a model tries to use it (no Python error, the process just dies).
+# On Blackwell, remove it so ComfyUI falls back to PyTorch attention. (On Ada /
+# Ampere — e.g. RTX 4090 — it works fine, so keep it there for the ~2x speedup.)
+CC_MAJOR=$(python -c "import torch; print(torch.cuda.get_device_capability(0)[0])" 2>/dev/null || echo 0)
+if [ "${CC_MAJOR:-0}" -ge 12 ]; then
+    echo "Blackwell GPU (sm_${CC_MAJOR}x) detected — removing sageattention (segfaults on Blackwell)"
+    pip uninstall -y sageattention >/dev/null 2>&1 || true
+fi
+
 echo "=== ComfyUI RTX 5090 Optimized ==="
 echo "PyTorch: $(python -c 'import torch; print(torch.__version__)')"
 echo "CUDA:    $(python -c 'import torch; print(torch.version.cuda)')"
