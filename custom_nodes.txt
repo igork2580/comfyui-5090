@@ -58,3 +58,10 @@ https://github.com/liusida/ComfyUI-AutoCropFaces.git
 https://github.com/huanngzh/ComfyUI-MVAdapter.git
 https://github.com/lldacing/ComfyUI_BiRefNet_ll.git
 https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait.git
+https://github.com/r-vage/ComfyUI-RvTools_v2.git
+https://github.com/thalismind/ComfyUI-LoadImageWithFilename.git
+https://github.com/lrzjason/Comfyui-QwenEditUtils.git
+https://github.com/chflame163/ComfyUI_LayerStyle_Advance.git
+https://github.com/zhangp365/ComfyUI-utils-nodes.git
+https://github.com/muyexiuluo/ComfyUI_Muye.git
+https://github.com/judian17/ComfyUI-SDPose-OOD.git

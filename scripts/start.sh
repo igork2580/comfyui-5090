@@ -26,7 +26,7 @@ fi
 # Create model subdirs on persistent volume if they don't exist
 for d in checkpoints loras vae controlnet clip clip_vision configs \
          diffusion_models embeddings style_models text_encoders unet \
-         upscale_models latent_upscale_models FBCNN mmaudio rembg sams ultralytics; do
+         upscale_models latent_upscale_models FBCNN mmaudio rembg sams ultralytics BiRefNet; do
     mkdir -p "/storage/models/$d"
 done
 
@@ -48,6 +48,14 @@ for f in /storage/models/vae/LTX2/*.safetensors; do
     target="/storage/models/vae/$(basename "$f")"
     [ -e "$target" ] || ln -s "$f" "$target"
 done
+
+# LayerStyle-Advance's LoadBiRefNetModelV2 hardcodes /ComfyUI/models/BiRefNet/
+# (ignores extra_model_paths.yaml) and auto-downloads ZhengPeng7/BiRefNet there on
+# first use. Symlink to persistent storage so it's fetched once, not on every pod.
+if [ ! -L /ComfyUI/models/BiRefNet ]; then
+    rm -rf /ComfyUI/models/BiRefNet
+    ln -s /storage/models/BiRefNet /ComfyUI/models/BiRefNet
+fi
 
 echo "=== ComfyUI RTX 5090 Optimized ==="
 echo "PyTorch: $(python -c 'import torch; print(torch.__version__)')"

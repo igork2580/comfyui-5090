@@ -87,6 +87,18 @@ Installed from the [ComfyUI Registry](https://registry.comfy.org). Version is de
 | [comfyui-wanvideowrapper](https://registry.comfy.org/nodes/comfyui-wanvideowrapper) | Wan2.1 video model wrapper (T2V, I2V) |
 | [comfyui-framepackwrapper-plusone](https://registry.comfy.org/nodes/comfyui-framepackwrapper-plusone) | FramePack video generation (community fork) |
 
+## Qwen Edit 2511 character-replacement workflow
+
+Added for the CivitAI workflow ["Qwen_edit_2511 Character Replacement / Keep Scene"](https://civitai.com/models/2307126) (lives on the pod at `/storage/user/default/workflows/qwenedit2511_character_replacement.json`). Cloned via `custom_nodes.txt` (latest):
+
+| Node | Provides |
+|---|---|
+| [Comfyui-QwenEditUtils](https://github.com/lrzjason/Comfyui-QwenEditUtils) | `QwenEditConfigPreparer`, `TextEncodeQwenImageEditPlusCustom_lrzjason` |
+| [ComfyUI_LayerStyle_Advance](https://github.com/chflame163/ComfyUI_LayerStyle_Advance) | `LayerMask: BiRefNetUltraV2`, `LayerMask: LoadBiRefNetModelV2` (the V2 BiRefNet nodes live in the *Advance* pack; base `ComfyUI_LayerStyle` was already installed) |
+| [ComfyUI-utils-nodes](https://github.com/zhangp365/ComfyUI-utils-nodes) | `ConcatTextOfUtils` |
+| [ComfyUI_Muye](https://github.com/muyexiuluo/ComfyUI_Muye) | `MaskFillHoles` |
+| [ComfyUI-SDPose-OOD](https://github.com/judian17/ComfyUI-SDPose-OOD) | `SDPoseOODLoader`, `SDPoseOODProcessor` — ⚠️ **does not load**: needs full `mmcv` (with CUDA C-extensions) + `mmdet`, which have no installable build for this image's stack (torch 2.8 / CUDA 12.8 / Python 3.13; `openmim` itself is broken on py3.13). The workflow's pose-transfer path (AnyPose LoRAs) is bypassed by default, so the workflow still runs fine without it — these two nodes just show red if you un-bypass the `pose` group. |
+
 ## Core
 
 | Node | Source |
@@ -105,3 +117,4 @@ Some nodes need specific model files on the persistent volume:
 | ComfyUI-MMAudio | `mmaudio/` | MMAudio weights (~8.6 GB) |
 | comfyui-controlnet-aux | Downloads automatically | Preprocessor models cached at runtime |
 | comfy-mtb | `rembg/` | Background removal model |
+| ComfyUI_LayerStyle_Advance (`LoadBiRefNetModelV2`) | `BiRefNet/` (symlinked to `/ComfyUI/models/BiRefNet` by `start.sh`) | Auto-downloads `ZhengPeng7/BiRefNet` (~430 MB) on first use |
