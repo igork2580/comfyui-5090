@@ -1,6 +1,6 @@
 # Custom Nodes Reference
 
-75 custom nodes total. 29 git-cloned with pinned commits, 45 installed via ComfyUI Registry (CNR), plus ComfyUI-Manager.
+76 custom nodes total. 30 git-cloned with pinned commits, 45 installed via ComfyUI Registry (CNR), plus ComfyUI-Manager.
 
 ## Git-cloned nodes (pinned commits)
 
@@ -35,6 +35,7 @@ These are cloned directly from GitHub with a specific commit pinned for reproduc
 | [comfyui-vrgamedevgirl](https://github.com/vrgamegirl19/comfyui-vrgamedevgirl) | `ba70d2b` | Utility nodes for VR content workflows |
 | [masquerade-nodes-comfyui](https://github.com/BadCafeCode/masquerade-nodes-comfyui) | `432cb4d` | Mask manipulation (combine, blur, threshold, morph) |
 | [wlsh_nodes](https://github.com/wallish77/wlsh_nodes) | `9780746` | Image resizing, outpainting, CLIP text encode shortcuts |
+| [ComfyUI-See-through](https://github.com/jtydhr88/ComfyUI-See-through) | `57bf9ed` | Anime layer decomposition (LayerDiff3D + Marigold). Single image → up to 24 RGBA part PNGs + depth maps + layers.json for Live2D / PSD assembly. Used by gen-studio's `seetrough` game-api endpoint. Models in `models/SeeThrough/` (download on first use: `layerdifforg/seethroughv0.0.2_layerdiff3d`, `24yearsold/seethroughv0.0.1_marigold`). |
 
 ## CNR-managed nodes (via comfy-cli)
 

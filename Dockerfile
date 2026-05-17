@@ -50,7 +50,9 @@ RUN git clone https://github.com/M1kep/ComfyLiterals.git && \
     git clone https://github.com/giriss/comfy-image-saver.git && \
         cd comfy-image-saver && git checkout 65e6903 && cd .. && \
     git clone https://github.com/jamesWalker55/comfyui-various.git && \
-        cd comfyui-various && git checkout 5bd85aa && cd ..
+        cd comfyui-various && git checkout 5bd85aa && cd .. && \
+    git clone https://github.com/jtydhr88/ComfyUI-See-through.git && \
+        cd ComfyUI-See-through && git checkout 57bf9ed && cd ..
 
 # ── Install deps for extra nodes only ────────────────────────
 RUN for req in /ComfyUI/custom_nodes/*/requirements.txt; do \
@@ -99,8 +101,8 @@ RUN python -c "import torch; v=torch.version.cuda; assert v.startswith('12.8'), 
 # ── Verify custom node count ────────────────────────────────
 RUN node_count=$(find /ComfyUI/custom_nodes -maxdepth 1 -type d | wc -l) && \
     echo "Custom nodes installed: $((node_count - 1))" && \
-    [ "$node_count" -gt 69 ] || \
-    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 69+" && exit 1)
+    [ "$node_count" -gt 70 ] || \
+    (echo "FAIL: Only $((node_count - 1)) nodes installed, expected 70+" && exit 1)
 
 # ── Model paths → persistent volume ─────────────────────────
 COPY extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
